@@ -1,0 +1,105 @@
+openapi: 3.0.3
+info:
+  title: Demo API
+  description: |
+    The API specification is a demo for creating an APIGateway 
+    to be deployed on GCP
+  version: 1.0.1
+servers:
+  - url: /api/v1
+tags:
+  - name: API Gateway demo
+    description: Demo for API Gateway for GCP deployment
+paths:
+  /employee:
+    post:
+      tags:
+        - Create an employee
+      summary: Create an employee
+      description: Creates an employee with given details
+      operationId: createEmployee
+      requestBody:
+        description: Create a new employee
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmployeeData"
+        required: true
+      responses:
+        "200":
+          description: Employee posted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeData"
+        "405":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpErrorResponse"
+  /employee/{employeeId}:
+    get:
+      tags:
+        - Employee Details by employee id
+      summary: Fetch all employee details by their employee id
+      description: Returns all details of the employee
+      operationId: getEmployeeById
+      parameters:
+        - in: path
+          name: employeeId
+          description: The employee id
+          required: true
+          schema:
+            type: string
+            example: dev123
+      responses:
+        "200":
+          description: Employee fetched successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EmployeeData"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpErrorResponse"
+components:
+  schemas:
+    EmployeeData:
+      required:
+        - employeeId
+        - firstName
+        - lastName
+      type: object
+      properties:
+        employeeId:
+          type: string
+          description: The employee id
+          example: dev123
+        firstName:
+          type: string
+          description: The first name of the employee
+          example: John
+        lastName:
+          type: string
+          description: The last name of the employee
+          example: Doe
+    HttpErrorResponse:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          description: name of the Http Status
+          type: string
+          example: BAD_REQUEST
+        message:
+          description: Description of the error thrown
+          type: string
+          example: Invalid request
