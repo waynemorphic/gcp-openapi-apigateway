@@ -38,6 +38,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HttpErrorResponse"
+      security:
+        - employee_demo_auth:
+            - write:employees
+            - read:employees
   /employee/{employeeId}:
     get:
       tags:
@@ -68,6 +72,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HttpErrorResponse"
+      security:
+        - api_key: []
+        - employee_demo_auth:
+            - read:employees
+            - write:employees
 components:
   schemas:
     EmployeeData:
@@ -78,7 +87,7 @@ components:
       type: object
       properties:
         employeeId:
-          type: string
+          type: integer
           description: The employee id
           example: dev123
         firstName:
@@ -103,3 +112,17 @@ components:
           description: Description of the error thrown
           type: string
           example: Invalid request
+  securitySchemes:
+    employee_demo_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://keycloakurl.com
+          scopes:
+            read:employees: View employees access
+            write:employees: Create employees access
+    api_key:
+      type: apiKey
+      in: header
+      name: API_KEY
+
