@@ -2,6 +2,7 @@ package org.example.employeedemo;
 
 import com.example.employeeDemo.api.EmployeeApi;
 import com.example.employeeDemo.model.EmployeeData;
+import com.example.employeeDemo.model.HttpCreatedResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +22,10 @@ public class EmployeeController implements EmployeeApi {
     }
 
     @Override
-    public ResponseEntity<EmployeeData> createEmployee(EmployeeData employeeData) {
-        EmployeeEntity employeeEntity = new EmployeeEntity();
+    public ResponseEntity<HttpCreatedResponse> createEmployee(EmployeeData employeeData) {
         employeeService.postEmployee(toEmployeeData(employeeData));
         log.info("=====> Created an employee {}", toEmployeeData(employeeData));
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @Override
