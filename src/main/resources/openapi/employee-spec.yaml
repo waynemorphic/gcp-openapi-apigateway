@@ -1,53 +1,54 @@
-openapi: 3.0.3
+openapi: 3.0.0
 info:
   title: Demo API
-  description: |
-    The API specification is a demo for creating an APIGateway 
-    to be deployed on GCP
-  version: 1.0.1
+  description: |-
+    This API specification is a demo for Contract-First/API-First approach in building Java based APIs
+    - POST employee into the system
+    - GET an employee's details by their employee id
+  version: 1.0.0
 servers:
   - url: /api/v1
 tags:
-  - name: API Gateway demo
-    description: Demo for API Gateway for GCP deployment
+  - name: employees
+    description: Operations about employees
 paths:
   /employee:
     post:
       tags:
-        - Create an employee
+        - employees
       summary: Create an employee
       description: Creates an employee with given details
       operationId: createEmployee
       requestBody:
-        description: Create a new employee
+        description: Create a new employee with an employee id, first name and last name
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/EmployeeData"
         required: true
       responses:
-        "200":
-          description: Employee posted successfully
+        "204":
+          description: Employee data posted successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/EmployeeData"
+                $ref: "#/components/schemas/HttpCreatedResponse"
         "405":
           description: Invalid input
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/HttpErrorResponse"
+                $ref: "#/components/schemas/HttpInputErrorResponse"
       security:
-        - employee_demo_auth:
-            - write:employees
-            - read:employees
+        - employeeOpenId:
+            - write_employee
+            - admin
   /employee/{employeeId}:
     get:
       tags:
-        - Employee Details by employee id
-      summary: Fetch all employee details by their employee id
-      description: Returns all details of the employee
+        - employees
+      summary: Fetch an employee's data
+      description: Fetch an employee details by their employee id
       operationId: getEmployeeById
       parameters:
         - in: path
@@ -56,10 +57,10 @@ paths:
           required: true
           schema:
             type: string
-            example: dev123
+            example: 1
       responses:
         "200":
-          description: Employee fetched successfully
+          description: Employee data fetched successfully
           content:
             application/json:
               schema:
@@ -71,12 +72,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/HttpErrorResponse"
+                $ref: "#/components/schemas/HttpUnauthorizedErrorResponse"
       security:
-        - api_key: []
-        - employee_demo_auth:
-            - read:employees
-            - write:employees
+        - employeeApiKey: []
 components:
   schemas:
     EmployeeData:
@@ -89,7 +87,7 @@ components:
         employeeId:
           type: integer
           description: The employee id
-          example: dev123
+          example: 1
         firstName:
           type: string
           description: The first name of the employee
@@ -98,31 +96,45 @@ components:
           type: string
           description: The last name of the employee
           example: Doe
-    HttpErrorResponse:
+    HttpCreatedResponse:
       type: object
       required:
         - status
         - message
       properties:
         status:
-          description: name of the Http Status
+          description: Name of the Http Status
           type: string
-          example: BAD_REQUEST
+          example: CREATED
         message:
           description: Description of the error thrown
           type: string
-          example: Invalid request
-  securitySchemes:
-    employee_demo_auth:
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: https://keycloakurl.com
-          scopes:
-            read:employees: View employees access
-            write:employees: Create employees access
-    api_key:
-      type: apiKey
-      in: header
-      name: API_KEY
-
+          example: Employee data posted successfully
+    HttpInputErrorResponse:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          description: Name of the Http Status
+          type: string
+          example: METHOD_NOT_ALLOWED
+        message:
+          description: Description of the error thrown
+          type: string
+          example: Invalid Input request
+    HttpUnauthorizedErrorResponse:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          description: Name of the Http Status
+          type: string
+          example: UNAUTHORIZED
+        message:
+          description: Description of the error thrown
+          type: string
+          example: User not Authorized
